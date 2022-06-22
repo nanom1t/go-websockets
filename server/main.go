@@ -19,20 +19,21 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer connection.Close()
 
-	for {
-		messageType, message, err := connection.ReadMessage()
+	for i := 0; i < 10; i++ {
+		message := fmt.Sprintf("Message #%d", i)
+
+		err = connection.WriteMessage(websocket.TextMessage, []byte(message))
 		if err != nil {
 			log.Println("ERR:", err)
 			break
 		}
 
-		log.Printf("MESSAGE: %s", message)
+		time.Sleep(time.Second)
+	}
 
-		err = connection.WriteMessage(messageType, message)
-		if err != nil {
-			log.Println("ERR:", err)
-			break
-		}
+	err = connection.WriteMessage(websocket.TextMessage, []byte("done"))
+	if err != nil {
+		log.Println("ERR:", err)
 	}
 }
 
